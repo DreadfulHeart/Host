@@ -74,12 +74,59 @@ async def main():
                 logger.info(f"No shotgun role found in the server")
             
             if shotgun_role and shotgun_role in target.roles:
-                # Target has shotgun role, they defend themselves
-                logger.info(f"{target.display_name} has shotgun role, preventing robbery")
+                # Target has shotgun role, they defend themselves - attacker loses money
+                penalty = random.randint(10000, 15000)
+                logger.info(f"{target.display_name} has shotgun role, preventing robbery and penalizing robber {penalty}")
+                
                 await interaction.response.send_message(
                     f"🔫 You try to rob {target.mention}, but they have a shotgun!\n"
-                    f"💥 {target.display_name} protected themselves! You were blown away with the shotgun!"
+                    f"💥 {target.display_name} protected themselves! You were blown away with the shotgun and lost ${penalty:,}!"
                 )
+                
+                # Remove penalty money from robber
+                guild_id = str(interaction.guild_id)
+                robber_user_id = str(interaction.user.id)
+                
+                result = await bot.unbelievaboat.remove_money(guild_id, robber_user_id, penalty)
+                if result:
+                    robber_new_balance = result.get('cash', 'unknown')
+                    await interaction.followup.send(f"💸 You lost ${penalty:,} for your failed robbery attempt.\nYour new balance: ${robber_new_balance:,}")
+                
+                return
+                
+            # Check if target also has the Woozie role - gunfight scenario
+            if woozie_role in target.roles:
+                # Both have Woozie role, gunfight happens
+                logger.info(f"Gunfight scenario: both {interaction.user.display_name} and {target.display_name} have Woozie role")
+                
+                penalty1 = random.randint(5000, 15000)
+                penalty2 = random.randint(5000, 15000)
+                
+                await interaction.response.send_message(
+                    f"🔫 You tried to rob {target.mention}, but they were also strapped!\n"
+                    f"💥 It ended in a bloody gunfight, but you both made it out alive.\n"
+                    f"{interaction.user.mention} lost ${penalty1:,} and {target.mention} lost ${penalty2:,} in the chaos!"
+                )
+                
+                # Remove money from both participants
+                guild_id = str(interaction.guild_id)
+                robber_user_id = str(interaction.user.id)
+                target_user_id = str(target.id)
+                
+                # Remove from robber
+                result1 = await bot.unbelievaboat.remove_money(guild_id, robber_user_id, penalty1)
+                # Remove from target
+                result2 = await bot.unbelievaboat.remove_money(guild_id, target_user_id, penalty2)
+                
+                if result1 and result2:
+                    robber_new_balance = result1.get('cash', 'unknown')
+                    target_new_balance = result2.get('cash', 'unknown')
+                    await interaction.followup.send(
+                        f"💸 New balances after the gunfight:\n"
+                        f"{interaction.user.mention}: ${robber_new_balance:,}\n"
+                        f"{target.mention}: ${target_new_balance:,}"
+                    )
+                
                 return
 
             # Send initial response for normal robbery

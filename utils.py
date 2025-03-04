@@ -31,7 +31,7 @@ class CommandExecutor:
 
             # Format the command exactly as needed for the target bot
             if command == "remove-money":
-                # Special formatting for remove-money command
+                # Special formatting for remove-money command without using target: prefix
                 cmd = f"/remove-money {options['target']} {options['amount']}"
             else:
                 # Standard slash command formatting
@@ -41,6 +41,9 @@ class CommandExecutor:
                     for k, v in options.items():
                         option_parts.append(f"{k}:{v}")
                     cmd += " " + " ".join(option_parts)
+
+            # Add detailed debug logging for the final command
+            self.logger.info(f"Sending formatted command to channel: {cmd}")
 
             # Send the command
             await channel.send(cmd)

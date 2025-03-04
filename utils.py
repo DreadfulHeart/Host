@@ -32,14 +32,20 @@ class CommandExecutor:
 
             if command == "remove-money":
                 try:
-                    # Ensure target is properly formatted as a mention
+                    # Get target bot member object
+                    target_bot = channel.guild.get_member(int(self.bot.config['TARGET_BOT_ID']))
+                    if not target_bot:
+                        self.logger.error("Could not find Unbelievaboat bot in the guild")
+                        return False
+
+                    # Format the target user mention
                     target = options['target']
                     if isinstance(target, discord.Member):
                         target = target.mention
-                        self.logger.info(f"Formatted mention for target: {target}")
+                        self.logger.info(f"Formatted user mention: {target}")
 
-                    # Format command as a regular message, exactly like a user would type
-                    cmd = f"!remove-money {target} {options['amount']}"
+                    # Format command using bot mention
+                    cmd = f"{target_bot.mention} remove-money {target} {options['amount']}"
 
                     # Detailed logging
                     self.logger.info(f"Preparing to send command: {cmd}")

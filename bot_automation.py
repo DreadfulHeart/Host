@@ -8,6 +8,7 @@ from discord.ext import commands
 from config import load_config
 from utils import setup_logging
 from api_client import UnbelievaBoatAPI
+from keep_alive import start_server
 
 # Setup logging
 logger = setup_logging()
@@ -512,14 +513,10 @@ async def main():
         logger.error(f"Failed to start bot: {str(e)}")
 
 if __name__ == "__main__":
-    # Start Express server for UptimeRobot in the background
-    import subprocess
-    express_server = subprocess.Popen(["node", "server.js"])
-    logger.info("Started Express server for UptimeRobot")
+    # Start Python HTTP server for UptimeRobot in a background thread
+    start_server()
+    logger.info("Started Python HTTP server for UptimeRobot")
     
-    try:
-        asyncio.run(main())
-    finally:
-        # Make sure to terminate the Express server when the bot exits
-        express_server.terminate()
-        logger.info("Terminated Express server")
+    # Run the Discord bot
+    logger.info("Starting Discord bot")
+    asyncio.run(main())

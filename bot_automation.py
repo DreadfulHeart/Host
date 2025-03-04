@@ -207,14 +207,14 @@ async def main():
             logger.error(f"Error in gunpoint command: {str(e)}")
             await interaction.followup.send("❌ An unexpected error occurred while trying to rob the target.")
 
-    @bot.tree.command(name="plock", description="Rob someone with a pistol (requires Plock role)")
+    @bot.tree.command(name="plock", description="Rob someone with a pistol (requires Glock role)")
     @app_commands.describe(target="The user to rob (optional, random if not specified)")
     async def plock(interaction: discord.Interaction, target: discord.Member = None):
         try:
-            # Check if user has the Plock role
-            plock_role = discord.utils.get(interaction.guild.roles, name="Plock")
-            if not plock_role or plock_role not in interaction.user.roles:
-                await interaction.response.send_message("❌ You need the Plock role to use this command!", ephemeral=True)
+            # Check if user has the Glock role
+            glock_role = discord.utils.get(interaction.guild.roles, name="Glock")
+            if not glock_role or glock_role not in interaction.user.roles:
+                await interaction.response.send_message("❌ You need the Glock role to use this command!", ephemeral=True)
                 return
 
             # If no target specified, randomly select one
@@ -312,10 +312,10 @@ async def main():
                 
                 return
                 
-            # Check if target also has Plock role (pistol vs pistol)
-            elif plock_role in target.roles:
-                # Both have Plock role, smaller gunfight happens
-                logger.info(f"Pistol standoff: both {interaction.user.display_name} and {target.display_name} have Plock role")
+            # Check if target also has Glock role (pistol vs pistol)
+            elif glock_role in target.roles:
+                # Both have Glock role, smaller gunfight happens
+                logger.info(f"Pistol standoff: both {interaction.user.display_name} and {target.display_name} have Glock role")
                 
                 penalty1 = random.randint(1000, 5000)
                 penalty2 = random.randint(1000, 5000)

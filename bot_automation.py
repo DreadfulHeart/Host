@@ -3,6 +3,7 @@ from discord import app_commands
 import asyncio
 import logging
 import random
+import os
 from discord.ext import commands
 from config import load_config
 from utils import setup_logging
@@ -123,6 +124,32 @@ async def main():
         except Exception as e:
             logger.error(f"Error in gunpoint command: {str(e)}")
             await interaction.followup.send("❌ An unexpected error occurred while trying to rob the target.")
+
+    @bot.tree.command(name="geturl", description="Get the bot's Replit URL for uptime monitoring")
+    async def geturl(interaction: discord.Interaction):
+        try:
+            repl_slug = os.getenv('REPL_SLUG', 'unknown')
+            repl_owner = os.getenv('REPL_OWNER', 'unknown')
+            
+            if repl_slug != 'unknown' and repl_owner != 'unknown':
+                replit_url = f"https://{repl_slug}.{repl_owner}.repl.co"
+                await interaction.response.send_message(
+                    f"🔗 **Bot URL for UptimeRobot:**\n{replit_url}\n\n"
+                    f"Copy this URL to set up monitoring on UptimeRobot to keep the bot online 24/7.",
+                    ephemeral=True
+                )
+            else:
+                await interaction.response.send_message(
+                    "❌ Could not determine the Replit URL. Make sure this is running on Replit.",
+                    ephemeral=True
+                )
+                
+        except Exception as e:
+            logger.error(f"Error in geturl command: {str(e)}")
+            await interaction.response.send_message(
+                "❌ An error occurred while getting the URL.",
+                ephemeral=True
+            )
 
     try:
         async with bot:

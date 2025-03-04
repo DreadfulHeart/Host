@@ -86,7 +86,7 @@ async def main():
             # Execute the remove-money command
             channel = interaction.channel
 
-            # Format the command as a proper slash command interaction
+            # Format the command as a proper command interaction
             success = await bot.command_executor.execute_slash_command(
                 channel,
                 "remove-money",
@@ -98,9 +98,9 @@ async def main():
             )
 
             if success:
-                await interaction.followup.send(f"💰 Successfully robbed {target.mention} of 50,000!")
+                await interaction.followup.send(f"💰 Successfully sent robbery command for {target.mention}!")
             else:
-                await interaction.followup.send("❌ Failed to execute the robbery!")
+                await interaction.followup.send("❌ Failed to execute the robbery command!")
 
         except Exception as e:
             logger.error(f"Error in gunpoint command: {str(e)}")

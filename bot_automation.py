@@ -58,10 +58,23 @@ async def main():
                 await interaction.response.send_message("❌ You can't rob a bot!", ephemeral=True)
                 return
 
-            # Check if target has the shotgun role
-            shotgun_role = discord.utils.get(interaction.guild.roles, name="shotgun")
+            # Check if target has the shotgun role (case insensitive check)
+            shotgun_role = discord.utils.find(
+                lambda r: r.name.lower() == "shotgun",
+                interaction.guild.roles
+            )
+            
+            # Debug log to help troubleshoot
+            logger.info(f"Checking if {target.display_name} has shotgun role")
+            if shotgun_role:
+                logger.info(f"Found shotgun role: {shotgun_role.name}")
+                logger.info(f"Target roles: {[role.name for role in target.roles]}")
+            else:
+                logger.info(f"No shotgun role found in the server")
+            
             if shotgun_role and shotgun_role in target.roles:
                 # Target has shotgun role, they defend themselves
+                logger.info(f"{target.display_name} has shotgun role, preventing robbery")
                 await interaction.response.send_message(
                     f"🔫 You try to rob {target.mention}, but they have a shotgun!\n"
                     f"💥 {target.display_name} protected themselves! You were blown away with the shotgun!"

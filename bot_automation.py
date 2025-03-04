@@ -125,9 +125,15 @@ async def main():
             logger.error(f"Error in gunpoint command: {str(e)}")
             await interaction.followup.send("❌ An unexpected error occurred while trying to rob the target.")
 
-    @bot.tree.command(name="geturl", description="Get the bot's Replit URL for uptime monitoring")
+    @bot.tree.command(name="geturl", description="Get the bot's Replit URL for uptime monitoring (Admin only)")
+    @app_commands.check(lambda interaction: interaction.user.guild_permissions.administrator)
     async def geturl(interaction: discord.Interaction):
         try:
+            # Check if user is an administrator
+            if not interaction.user.guild_permissions.administrator:
+                await interaction.response.send_message("❌ You need administrator permissions to use this command!", ephemeral=True)
+                return
+                
             repl_slug = os.getenv('REPL_SLUG', 'unknown')
             repl_owner = os.getenv('REPL_OWNER', 'unknown')
             

@@ -1,5 +1,6 @@
 
 import threading
+import os
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import logging
 
@@ -17,9 +18,11 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         return
 
 def run_server():
-    server_address = ('0.0.0.0', 8080)
+    port = 8080
+    server_address = ('0.0.0.0', port)
     httpd = HTTPServer(server_address, SimpleHTTPRequestHandler)
-    logger.info(f"Starting keep-alive server on port 8080")
+    logger.info(f"Starting keep-alive server on port {port}")
+    logger.info(f"Server URL: https://{os.getenv('REPL_SLUG')}.{os.getenv('REPL_OWNER')}.repl.co")
     httpd.serve_forever()
 
 def start_server():

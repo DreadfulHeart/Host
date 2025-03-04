@@ -31,14 +31,14 @@ class AutomationBot(commands.Bot):
 async def main():
     bot = AutomationBot()
 
-    @bot.tree.command(name="gunpoint", description="Rob someone at gunpoint (requires Shotgun role)")
+    @bot.tree.command(name="gunpoint", description="Rob someone at gunpoint (requires Woozie role)")
     @app_commands.describe(target="The user to rob (optional, random if not specified)")
     async def gunpoint(interaction: discord.Interaction, target: discord.Member = None):
         try:
-            # Check if user has the Shotgun role
-            shotgun_role = discord.utils.get(interaction.guild.roles, name="Shotgun")
-            if not shotgun_role or shotgun_role not in interaction.user.roles:
-                await interaction.response.send_message("❌ You need the Shotgun role to use this command!", ephemeral=True)
+            # Check if user has the Woozie role
+            woozie_role = discord.utils.get(interaction.guild.roles, name="Woozie")
+            if not woozie_role or woozie_role not in interaction.user.roles:
+                await interaction.response.send_message("❌ You need the Woozie role to use this command!", ephemeral=True)
                 return
 
             # If no target specified, randomly select one

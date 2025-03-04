@@ -58,7 +58,17 @@ async def main():
                 await interaction.response.send_message("❌ You can't rob a bot!", ephemeral=True)
                 return
 
-            # Send initial response
+            # Check if target has the shotgun role
+            shotgun_role = discord.utils.get(interaction.guild.roles, name="shotgun")
+            if shotgun_role and shotgun_role in target.roles:
+                # Target has shotgun role, they defend themselves
+                await interaction.response.send_message(
+                    f"🔫 You try to rob {target.mention}, but they have a shotgun!\n"
+                    f"💥 {target.display_name} protected themselves! You were blown away with the shotgun!"
+                )
+                return
+
+            # Send initial response for normal robbery
             await interaction.response.send_message(f"🔫 You're robbing {target.mention}!")
 
             # Use UnbelievaBoat API to remove money with random amount between 25k-50k

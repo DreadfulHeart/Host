@@ -29,14 +29,18 @@ class CommandExecutor:
             # Log command execution
             self.logger.info(f"Executing command: /{command} with options: {options}")
 
-            # Create the slash command
-            cmd = f"/{command}"
-            if options:
-                # Format options as proper Discord slash command arguments
-                option_parts = []
-                for k, v in options.items():
-                    option_parts.append(f"{k}:{v}")
-                cmd += " " + " ".join(option_parts)
+            # Format the command exactly as needed for the target bot
+            if command == "remove-money":
+                # Special formatting for remove-money command
+                cmd = f"/remove-money {options['target']} {options['amount']}"
+            else:
+                # Standard slash command formatting
+                cmd = f"/{command}"
+                if options:
+                    option_parts = []
+                    for k, v in options.items():
+                        option_parts.append(f"{k}:{v}")
+                    cmd += " " + " ".join(option_parts)
 
             # Send the command
             await channel.send(cmd)

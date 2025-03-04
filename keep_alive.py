@@ -22,7 +22,10 @@ def run_server():
     server_address = ('0.0.0.0', port)
     httpd = HTTPServer(server_address, SimpleHTTPRequestHandler)
     logger.info(f"Starting keep-alive server on port {port}")
-    logger.info(f"Server URL: https://{os.getenv('REPL_SLUG')}.{os.getenv('REPL_OWNER')}.repl.co")
+    repl_slug = os.getenv('REPL_SLUG', 'unknown')
+    repl_owner = os.getenv('REPL_OWNER', 'unknown')
+    logger.info(f"Primary URL: https://{repl_slug}.{repl_owner}.repl.co")
+    logger.info(f"Alternative URL: https://workspace.{repl_owner}.repl.co")
     httpd.serve_forever()
 
 def start_server():

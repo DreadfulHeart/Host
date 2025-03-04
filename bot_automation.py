@@ -481,14 +481,19 @@ async def main():
             repl_owner = os.getenv('REPL_OWNER', 'unknown')
 
             if repl_slug != 'unknown' and repl_owner != 'unknown':
+                # Use the correct Replit URL format
                 replit_url = f"https://{repl_slug}.{repl_owner}.repl.co"
-                uptime_url = f"{replit_url}"  # UptimeRobot will access the root path
+                # Try alternative formats if needed
+                alt_url = f"https://workspace.{repl_owner}.repl.co"
+                
                 await interaction.response.send_message(
-                    f"🔗 **Bot URL for UptimeRobot:**\n{uptime_url}\n\n"
+                    f"🔗 **Bot URLs for UptimeRobot:**\n"
+                    f"Primary URL: {replit_url}\n"
+                    f"Alternative URL: {alt_url}\n\n"
                     f"**Setup Instructions:**\n"
                     f"1. Go to UptimeRobot.com and create an account if you don't have one\n"
                     f"2. Add a new monitor (HTTP(s) type)\n"
-                    f"3. Paste this URL: {uptime_url}\n"
+                    f"3. Paste one of the URLs above (try the alternative if the primary doesn't work)\n"
                     f"4. Set monitoring interval to 5 minutes\n"
                     f"5. Save and your bot will stay online 24/7",
                     ephemeral=True

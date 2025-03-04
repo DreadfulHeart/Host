@@ -64,7 +64,7 @@ async def main():
                 lambda r: r.name.lower() == "shotgun",
                 interaction.guild.roles
             )
-            
+
             # Debug log to help troubleshoot
             logger.info(f"Checking if {target.display_name} has shotgun/woozie roles")
             if shotgun_role:
@@ -72,21 +72,21 @@ async def main():
                 logger.info(f"Target roles: {[role.name for role in target.roles]}")
             else:
                 logger.info(f"No shotgun role found in the server")
-            
+
             # Priority check: if target has Woozie role, always trigger the gunfight scenario
             # regardless of whether they have a shotgun role
             if woozie_role in target.roles:
                 # Both have Woozie role, gunfight happens
                 logger.info(f"Gunfight scenario: both {interaction.user.display_name} and {target.display_name} have Woozie role")
-                
+
                 penalty1 = random.randint(5000, 15000)
                 penalty2 = random.randint(5000, 15000)
-                
+
                 # Initial response
                 await interaction.response.send_message(
                     f"🔫 You try to rob {target.mention}, but they pull out their piece too!"
                 )
-                
+
                 # Dramatic gunfight sequence
                 gunfight_messages = [
                     f"💥 **BANG!** {interaction.user.display_name} fires first but misses!",
@@ -96,7 +96,7 @@ async def main():
                     f"💥 Your shot hits {target.display_name}'s arm! (-${penalty2:,})",
                     f"🚓 The sound of police sirens in the distance forces you both to flee!"
                 ]
-                
+
                 # Send each message with a delay for dramatic effect
                 for i, message in enumerate(gunfight_messages):
                     if i == 0:  # First message is already sent
@@ -104,17 +104,17 @@ async def main():
                     else:
                         await asyncio.sleep(1.5)
                         await interaction.followup.send(message)
-                
+
                 # Remove money from both participants
                 guild_id = str(interaction.guild_id)
                 robber_user_id = str(interaction.user.id)
                 target_user_id = str(target.id)
-                
+
                 # Remove from robber
                 result1 = await bot.unbelievaboat.remove_money(guild_id, robber_user_id, penalty1)
                 # Remove from target
                 result2 = await bot.unbelievaboat.remove_money(guild_id, target_user_id, penalty2)
-                
+
                 if result1 and result2:
                     robber_new_balance = result1.get('cash', 'unknown')
                     target_new_balance = result2.get('cash', 'unknown')
@@ -123,20 +123,20 @@ async def main():
                         f"{interaction.user.mention}: ${robber_new_balance:,} (-${penalty1:,})\n"
                         f"{target.mention}: ${target_new_balance:,} (-${penalty2:,})"
                     )
-                
+
                 return
-            
+
             # If target only has shotgun role (no Woozie role), trigger the shotgun defense scenario
             elif shotgun_role and shotgun_role in target.roles:
                 # Target has shotgun role, they defend themselves - attacker loses money
                 penalty = random.randint(10000, 15000)
                 logger.info(f"{target.display_name} has shotgun role, preventing robbery and penalizing robber {penalty}")
-                
+
                 # Initial response
                 await interaction.response.send_message(
                     f"🔫 You try to rob {target.mention}, but wait... what's that they're reaching for?"
                 )
-                
+
                 # Dramatic shotgun defense sequence
                 shotgun_messages = [
                     f"💥 **BOOM!** {target.display_name} pulls out a shotgun!",
@@ -144,16 +144,16 @@ async def main():
                     f"💢 **BOOM!** The shotgun blast catches you! (-${penalty:,})",
                     f"🩸 You manage to escape, but not without serious injuries!"
                 ]
-                
+
                 # Send each message with a delay for dramatic effect
                 for message in shotgun_messages:
                     await asyncio.sleep(1.5)
                     await interaction.followup.send(message)
-                
+
                 # Remove penalty money from robber
                 guild_id = str(interaction.guild_id)
                 robber_user_id = str(interaction.user.id)
-                
+
                 result = await bot.unbelievaboat.remove_money(guild_id, robber_user_id, penalty)
                 if result:
                     robber_new_balance = result.get('cash', 'unknown')
@@ -161,7 +161,7 @@ async def main():
                         f"💸 **Medical Bill:** ${penalty:,}\n"
                         f"Your new balance: ${robber_new_balance:,}"
                     )
-                
+
                 return
 
             # Send initial response for normal robbery
@@ -180,11 +180,11 @@ async def main():
 
             if result:
                 target_new_balance = result.get('cash', 'unknown')
-                
+
                 # Add the stolen money to the robber
                 logger.info(f"Attempting to add {amount} to user {robber_user_id} in guild {guild_id}")
                 add_result = await bot.unbelievaboat.add_money(guild_id, robber_user_id, amount)
-                
+
                 if add_result:
                     robber_new_balance = add_result.get('cash', 'unknown')
                     await interaction.followup.send(
@@ -239,42 +239,46 @@ async def main():
                 lambda r: r.name.lower() == "shotgun",
                 interaction.guild.roles
             )
-            
+
             woozie_role = discord.utils.get(interaction.guild.roles, name="Woozie")
             uzi_role = discord.utils.find(
                 lambda r: r.name.lower() == "uzi",
                 interaction.guild.roles
             )
-            
+
             # Debug log to help troubleshoot
             logger.info(f"Plock command: Checking if {target.display_name} has shotgun/woozie/uzi/plock roles")
-            
+
             # Check if target has Uzi role
             if uzi_role and uzi_role in target.roles:
                 # Target has Uzi, they overpower the plock user
                 penalty = random.randint(5000, 10000)
                 logger.info(f"{target.display_name} has Uzi role, overpowering plock user with penalty {penalty}")
-                
-                await interaction.response.send_message(
-                    f"🔫 You pull out your pistol to rob {target.mention}, but they have a UZI!"
-                )
-                
-                # Dramatic uzi defense sequence
-                uzi_messages = [
-                    f"💥 **RAT-TAT-TAT!** {target.display_name} unloads with their UZI!",
-                    f"😱 Your pistol is no match for their firepower!",
-                    f"💢 You take several hits and drop your weapon! (-${penalty:,})",
-                    f"🩸 You crawl away in defeat, lucky to be alive!"
+
+                # Random uzi intro messages
+                uzi_intros = [
+                    f"🔫 Your plock is no match for {target.mention}'s UZI!",
+                    f"🔫 {target.mention} pulls out an UZI when you show your plock!",
+                    f"🔫 You brought a plock to an UZI fight with {target.mention}!"
                 ]
-                
+                await interaction.response.send_message(random.choice(uzi_intros))
+
+                # Simplified uzi defense options
+                uzi_options = [
+                    [f"💥 UZI fires!", f"💢 You're hit! (-${penalty:,})"],
+                    [f"💥 \"ALL I SEE IS GREEN!!!\" {target.display_name} yells, firing their UZI!", f"💢 Multiple hits! (-${penalty:,})"],
+                    [f"💥 UZI wins!", f"💢 You're wounded! (-${penalty:,})"]
+                ]
+                uzi_messages = random.choice(uzi_options)
+
                 for message in uzi_messages:
                     await asyncio.sleep(1.5)
                     await interaction.followup.send(message)
-                
+
                 # Remove penalty money from robber
                 guild_id = str(interaction.guild_id)
                 robber_user_id = str(interaction.user.id)
-                
+
                 result = await bot.unbelievaboat.remove_money(guild_id, robber_user_id, penalty)
                 if result:
                     robber_new_balance = result.get('cash', 'unknown')
@@ -282,18 +286,18 @@ async def main():
                         f"💸 **Medical Bill:** ${penalty:,}\n"
                         f"Your new balance: ${robber_new_balance:,}"
                     )
-                
+
                 return
-                
+
             # Check if target has Shotgun role
             elif shotgun_role and shotgun_role in target.roles:
                 # Target has shotgun role, scares away the plock user
                 logger.info(f"{target.display_name} has shotgun role, scaring away plock user")
-                
+
                 await interaction.response.send_message(
                     f"🔫 You pull out your pistol to rob {target.mention}, but freeze when you see their shotgun!"
                 )
-                
+
                 # Dramatic shotgun scare sequence
                 shotgun_messages = [
                     f"💥 **CLICK!** {target.display_name} cocks their shotgun!",
@@ -301,30 +305,30 @@ async def main():
                     f"🏃 You quickly put away your pistol and back away slowly...",
                     f"💨 You turn and run, grateful they didn't pull the trigger!"
                 ]
-                
+
                 for message in shotgun_messages:
                     await asyncio.sleep(1.5)
                     await interaction.followup.send(message)
-                
+
                 await interaction.followup.send(
                     f"😅 You escaped without losing any money, but your pride is severely wounded!"
                 )
-                
+
                 return
-                
+
             # Check if target also has Glock role (pistol vs pistol)
             elif glock_role in target.roles:
                 # Both have Glock role, smaller gunfight happens
                 logger.info(f"Pistol standoff: both {interaction.user.display_name} and {target.display_name} have Glock role")
-                
+
                 penalty1 = random.randint(1000, 5000)
                 penalty2 = random.randint(1000, 5000)
-                
+
                 # Initial response
                 await interaction.response.send_message(
                     f"🔫 You pull your pistol on {target.mention}, but they draw their pistol too!"
                 )
-                
+
                 # Pistol standoff sequence
                 standoff_messages = [
                     f"🔫 You're both pointing pistols at each other!",
@@ -334,7 +338,7 @@ async def main():
                     f"💢 {target.display_name} is hit in the leg! (-${penalty2:,})",
                     f"🚓 The sound of a nearby car spooks you both and you flee!"
                 ]
-                
+
                 # Send each message with a delay
                 for i, message in enumerate(standoff_messages):
                     if i == 0:  # First message is already sent
@@ -342,17 +346,17 @@ async def main():
                     else:
                         await asyncio.sleep(1.5)
                         await interaction.followup.send(message)
-                
+
                 # Remove money from both participants
                 guild_id = str(interaction.guild_id)
                 robber_user_id = str(interaction.user.id)
                 target_user_id = str(target.id)
-                
+
                 # Remove from robber
                 result1 = await bot.unbelievaboat.remove_money(guild_id, robber_user_id, penalty1)
                 # Remove from target
                 result2 = await bot.unbelievaboat.remove_money(guild_id, target_user_id, penalty2)
-                
+
                 if result1 and result2:
                     robber_new_balance = result1.get('cash', 'unknown')
                     target_new_balance = result2.get('cash', 'unknown')
@@ -361,11 +365,11 @@ async def main():
                         f"{interaction.user.mention}: ${robber_new_balance:,} (-${penalty1:,})\n"
                         f"{target.mention}: ${target_new_balance:,} (-${penalty2:,})"
                     )
-                
+
                 return
 
             # Normal plock robbery (smaller amount than woozie)
-            await interaction.response.send_message(f"🔫 You're robbing {target.mention} with your pistol!")
+            await interaction.response.send_message(f"🔫 You're robbing {target.mention} with your plock!")
 
             # Use UnbelievaBoat API to remove money with random amount between 500-10k
             guild_id = str(interaction.guild_id)
@@ -380,11 +384,11 @@ async def main():
 
             if result:
                 target_new_balance = result.get('cash', 'unknown')
-                
+
                 # Add the stolen money to the robber
                 logger.info(f"Plock robbery: Attempting to add {amount} to user {robber_user_id} in guild {guild_id}")
                 add_result = await bot.unbelievaboat.add_money(guild_id, robber_user_id, amount)
-                
+
                 if add_result:
                     robber_new_balance = add_result.get('cash', 'unknown')
                     await interaction.followup.send(
@@ -415,10 +419,10 @@ async def main():
             if not interaction.user.guild_permissions.administrator:
                 await interaction.response.send_message("❌ You need administrator permissions to use this command!", ephemeral=True)
                 return
-                
+
             repl_slug = os.getenv('REPL_SLUG', 'unknown')
             repl_owner = os.getenv('REPL_OWNER', 'unknown')
-            
+
             if repl_slug != 'unknown' and repl_owner != 'unknown':
                 replit_url = f"https://{repl_slug}.{repl_owner}.repl.co"
                 await interaction.response.send_message(
@@ -431,7 +435,7 @@ async def main():
                     "❌ Could not determine the Replit URL. Make sure this is running on Replit.",
                     ephemeral=True
                 )
-                
+
         except Exception as e:
             logger.error(f"Error in geturl command: {str(e)}")
             await interaction.response.send_message(

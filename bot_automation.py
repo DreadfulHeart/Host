@@ -87,15 +87,28 @@ async def main():
                     f"🔫 You try to rob {target.mention}, but they pull out their piece too!"
                 )
 
-                # Dramatic gunfight sequence
-                gunfight_messages = [
-                    f"💥 **BANG!** {interaction.user.display_name} fires first but misses!",
-                    f"💨 {target.display_name} ducks behind cover and returns fire!",
-                    f"🔫 **BANG! BANG!** Bullets fly everywhere!",
-                    f"💢 {interaction.user.display_name} gets grazed by a bullet! (-${penalty1:,})",
-                    f"💥 Your shot hits {target.display_name}'s arm! (-${penalty2:,})",
-                    f"🚓 The sound of police sirens in the distance forces you both to flee!"
+                # Dramatic gunfight sequence - randomize some options
+                gunfight_options = [
+                    [
+                        f"💥 **BANG!** {interaction.user.display_name} fires first but misses!",
+                        f"💨 \"LOCK IN BLUD!!\" {target.display_name} yells, returning fire!",
+                        f"💢 {interaction.user.display_name} gets hit! (-${penalty1:,})",
+                        f"💥 Your bullet grazes {target.display_name}! (-${penalty2:,})"
+                    ],
+                    [
+                        f"🔫 **BANG! BANG!** Bullets fly everywhere!",
+                        f"💥 \"ALL I SEE IS GREEN!!!\" {interaction.user.display_name} shouts!",
+                        f"💢 You both get hit in the crossfire! (-${penalty1:,})",
+                        f"🚓 Police sirens in the distance force you both to flee! (-${penalty2:,})"
+                    ],
+                    [
+                        f"🔫 {target.display_name} draws faster than expected!",
+                        f"💥 You trade shots in the street!",
+                        f"💢 Blood spills on both sides! (-${penalty1:,}) (-${penalty2:,})",
+                        f"🏃‍♂️ You both limp away before anyone sees you!"
+                    ]
                 ]
+                gunfight_messages = random.choice(gunfight_options)
 
                 # Send each message with a delay for dramatic effect
                 for i, message in enumerate(gunfight_messages):
@@ -137,13 +150,28 @@ async def main():
                     f"🔫 You try to rob {target.mention}, but wait... what's that they're reaching for?"
                 )
 
-                # Dramatic shotgun defense sequence
-                shotgun_messages = [
-                    f"💥 **BOOM!** {target.display_name} pulls out a shotgun!",
-                    f"😱 You try to run but it's too late!",
-                    f"💢 **BOOM!** The shotgun blast catches you! (-${penalty:,})",
-                    f"🩸 You manage to escape, but not without serious injuries!"
+                # Dramatic shotgun defense sequence - randomize some options
+                shotgun_options = [
+                    [
+                        f"💥 **BOOM!** {target.display_name} pulls out a shotgun!",
+                        f"😱 \"LOCK IN BLUD!!\" {target.display_name} shouts as they fire!",
+                        f"💢 The blast catches you! (-${penalty:,})",
+                        f"🩸 You escape, badly wounded!"
+                    ],
+                    [
+                        f"💥 {target.display_name} reveals a sawed-off shotgun!",
+                        f"😱 You freeze in place seeing the barrel!",
+                        f"💢 The shot rings out! (-${penalty:,})",
+                        f"🏥 You'll need stitches after this one!"
+                    ],
+                    [
+                        f"💥 \"{target.display_name}'s strapped with a shotty!\" someone yells!",
+                        f"😱 You try to escape but stumble!",
+                        f"💢 **BOOM!** You take the blast! (-${penalty:,})",
+                        f"🚑 That's a hospital trip for sure!"
+                    ]
                 ]
+                shotgun_messages = random.choice(shotgun_options)
 
                 # Send each message with a delay for dramatic effect
                 for message in shotgun_messages:
@@ -298,13 +326,28 @@ async def main():
                     f"🔫 You pull out your pistol to rob {target.mention}, but freeze when you see their shotgun!"
                 )
 
-                # Dramatic shotgun scare sequence
-                shotgun_messages = [
-                    f"💥 **CLICK!** {target.display_name} cocks their shotgun!",
-                    f"😱 The sight of the barrel makes you reconsider your life choices!",
-                    f"🏃 You quickly put away your pistol and back away slowly...",
-                    f"💨 You turn and run, grateful they didn't pull the trigger!"
+                # Dramatic shotgun scare sequence - randomize some options
+                shotgun_options = [
+                    [
+                        f"💥 **CLICK!** {target.display_name} cocks their shotgun!",
+                        f"😱 The sight of that barrel makes you freeze!",
+                        f"🏃 You quickly put away your plock...",
+                        f"💨 You back away slowly, grateful to be alive!"
+                    ],
+                    [
+                        f"💥 {target.display_name} reveals a shotgun!",
+                        f"😱 \"You picked the wrong one today!\" they shout!",
+                        f"🏃 Your plock feels useless now...",
+                        f"💨 You decide this isn't worth it and flee!"
+                    ],
+                    [
+                        f"💥 {target.display_name}'s shotgun makes your plock look like a toy!",
+                        f"😱 \"LOCK IN BLUD!!\" they shout, aiming at you!",
+                        f"🏃 That plock won't help you now...",
+                        f"💨 You wisely choose to run away!"
+                    ]
                 ]
+                shotgun_messages = random.choice(shotgun_options)
 
                 for message in shotgun_messages:
                     await asyncio.sleep(1.5)
@@ -329,15 +372,28 @@ async def main():
                     f"🔫 You pull your pistol on {target.mention}, but they draw their pistol too!"
                 )
 
-                # Pistol standoff sequence
-                standoff_messages = [
-                    f"🔫 You're both pointing pistols at each other!",
-                    f"😠 \"Drop it!\" you both shout at the same time!",
-                    f"💥 A few wild shots are fired in panic!",
-                    f"💢 {interaction.user.display_name} takes a graze! (-${penalty1:,})",
-                    f"💢 {target.display_name} is hit in the leg! (-${penalty2:,})",
-                    f"🚓 The sound of a nearby car spooks you both and you flee!"
+                # Pistol standoff sequence - randomize some options
+                standoff_options = [
+                    [
+                        f"🔫 You're both pointing plocks at each other!",
+                        f"😠 \"Drop it!\" you both shout at the same time!",
+                        f"💥 {interaction.user.display_name} takes a graze! (-${penalty1:,})",
+                        f"💢 {target.display_name} gets hit too! (-${penalty2:,})"
+                    ],
+                    [
+                        f"🔫 Two plocks drawn in a standoff!",
+                        f"💥 \"ALL I SEE IS GREEN!!!\" Someone nearby yells!",
+                        f"😠 Shots ring out in the panic! (-${penalty1:,})",
+                        f"💢 Both of you are hit! (-${penalty2:,})"
+                    ],
+                    [
+                        f"🔫 Your plocks are locked on each other!",
+                        f"💥 Fingers twitch and bullets fly!",
+                        f"💢 You both take hits! (-${penalty1:,}) (-${penalty2:,})",
+                        f"🚓 A police siren sends you both running!"
+                    ]
                 ]
+                standoff_messages = random.choice(standoff_options)
 
                 # Send each message with a delay
                 for i, message in enumerate(standoff_messages):

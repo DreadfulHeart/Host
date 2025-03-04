@@ -61,10 +61,10 @@ async def main():
             # Send initial response
             await interaction.response.send_message(f"🔫 You're robbing {target.mention}!")
 
-            # Use UnbelievaBoat API to remove money
+            # Use UnbelievaBoat API to remove money with random amount between 25k-50k
             guild_id = str(interaction.guild_id)
             user_id = str(target.id)
-            amount = 50000
+            amount = random.randint(25000, 50000)
 
             logger.info(f"Attempting to remove {amount} from user {user_id} in guild {guild_id}")
 

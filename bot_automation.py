@@ -481,9 +481,15 @@ async def main():
 
             if repl_slug != 'unknown' and repl_owner != 'unknown':
                 replit_url = f"https://{repl_slug}.{repl_owner}.repl.co"
+                uptime_url = f"{replit_url}"  # UptimeRobot will access the root path
                 await interaction.response.send_message(
-                    f"🔗 **Bot URL for UptimeRobot:**\n{replit_url}\n\n"
-                    f"Copy this URL to set up monitoring on UptimeRobot to keep the bot online 24/7.",
+                    f"🔗 **Bot URL for UptimeRobot:**\n{uptime_url}\n\n"
+                    f"**Setup Instructions:**\n"
+                    f"1. Go to UptimeRobot.com and create an account if you don't have one\n"
+                    f"2. Add a new monitor (HTTP(s) type)\n"
+                    f"3. Paste this URL: {uptime_url}\n"
+                    f"4. Set monitoring interval to 5 minutes\n"
+                    f"5. Save and your bot will stay online 24/7",
                     ephemeral=True
                 )
             else:
@@ -506,4 +512,14 @@ async def main():
         logger.error(f"Failed to start bot: {str(e)}")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    # Start Express server for UptimeRobot in the background
+    import subprocess
+    express_server = subprocess.Popen(["node", "server.js"])
+    logger.info("Started Express server for UptimeRobot")
+    
+    try:
+        asyncio.run(main())
+    finally:
+        # Make sure to terminate the Express server when the bot exits
+        express_server.terminate()
+        logger.info("Terminated Express server")

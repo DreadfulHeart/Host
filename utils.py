@@ -32,7 +32,11 @@ class CommandExecutor:
             # Create the slash command
             cmd = f"/{command}"
             if options:
-                cmd += " " + " ".join([f"{k}:{v}" for k, v in options.items()])
+                # Format options as proper Discord slash command arguments
+                option_parts = []
+                for k, v in options.items():
+                    option_parts.append(f"{k}:{v}")
+                cmd += " " + " ".join(option_parts)
 
             # Send the command
             await channel.send(cmd)

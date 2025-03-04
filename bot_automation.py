@@ -51,7 +51,8 @@ async def main():
     bot = AutomationBot()
 
     @bot.tree.command(name="gunpoint", description="Rob someone at gunpoint (requires Shotgun role)")
-    async def gunpoint(interaction: discord.Interaction):
+    @app_commands.describe(target="The user to rob (optional, random if not specified)")
+    async def gunpoint(interaction: discord.Interaction, target: discord.Member = None):
         try:
             # Check if user has the Shotgun role
             shotgun_role = discord.utils.get(interaction.guild.roles, name="Shotgun")
@@ -59,37 +60,41 @@ async def main():
                 await interaction.response.send_message("❌ You need the Shotgun role to use this command!", ephemeral=True)
                 return
 
-            # Get all members from the server
-            members = interaction.guild.members
-            # Filter out bots and the command user
-            valid_targets = [member for member in members if not member.bot and member != interaction.user]
+            # If no target specified, randomly select one
+            if not target:
+                # Get all members from the server
+                members = interaction.guild.members
+                # Filter out bots and the command user
+                valid_targets = [member for member in members if not member.bot and member != interaction.user]
 
-            if not valid_targets:
-                await interaction.response.send_message("❌ No valid targets found!", ephemeral=True)
+                if not valid_targets:
+                    await interaction.response.send_message("❌ No valid targets found!", ephemeral=True)
+                    return
+
+                # Randomly select a target
+                target = random.choice(valid_targets)
+            elif target == interaction.user:
+                await interaction.response.send_message("❌ You can't rob yourself!", ephemeral=True)
                 return
-
-            # Randomly select a target
-            target = random.choice(valid_targets)
+            elif target.bot:
+                await interaction.response.send_message("❌ You can't rob a bot!", ephemeral=True)
+                return
 
             # Send initial response
             await interaction.response.send_message(f"🔫 You're robbing {target.mention}!")
 
             # Execute the remove-money command
             channel = interaction.channel
-            command = {
-                "command": "remove-money",
-                "options": {
+
+            # Format the command as a proper slash command interaction
+            success = await bot.command_executor.execute_slash_command(
+                channel,
+                "remove-money",
+                {
                     "target": target.mention,
                     "amount": "50000"
                 },
-                "delay": 2
-            }
-
-            success = await bot.command_executor.execute_slash_command(
-                channel,
-                command["command"],
-                command["options"],
-                command["delay"]
+                2
             )
 
             if success:

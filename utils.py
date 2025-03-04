@@ -23,7 +23,7 @@ class CommandExecutor:
         self.logger = logging.getLogger('BotAutomation.CommandExecutor')
 
     async def execute_slash_command(self, channel, command, options=None, delay=None):
-        """Execute a command by sending it as a message to the channel"""
+        """Execute a command using Discord's slash command system"""
         if delay is None:
             delay = float(self.bot.config['DEFAULT_DELAY'])
 
@@ -32,39 +32,49 @@ class CommandExecutor:
 
             if command == "remove-money":
                 try:
-                    # Get target bot member object
+                    # Get target bot member
                     target_bot = channel.guild.get_member(int(self.bot.config['TARGET_BOT_ID']))
                     if not target_bot:
-                        self.logger.error("Could not find Unbelievaboat bot in the guild")
+                        self.logger.error("Could not find target bot in the guild")
                         return False
 
-                    # Format the target user mention
+                    # Format target user and amount
                     target = options['target']
-                    if isinstance(target, discord.Member):
-                        target = target.mention
-                        self.logger.info(f"Formatted user mention: {target}")
+                    amount = options['amount']
 
-                    # Format command using bot mention
-                    cmd = f"{target_bot.mention} remove-money {target} {options['amount']}"
-
-                    # Detailed logging
-                    self.logger.info(f"Preparing to send command: {cmd}")
-                    self.logger.info(f"Channel permissions: {channel.permissions_for(channel.guild.me)}")
-
-                    # Wait for the specified delay
-                    await asyncio.sleep(delay)
-
-                    # Send as a regular message
+                    # Get the command tree for the target bot
                     try:
-                        message = await channel.send(content=cmd)
-                        self.logger.info(f"Successfully sent message with ID: {message.id}")
-                        self.logger.info(f"Message content sent: {message.content}")
-                        return True
-                    except discord.Forbidden as e:
-                        self.logger.error(f"Permission error sending message: {str(e)}")
-                        return False
-                    except discord.HTTPException as e:
-                        self.logger.error(f"HTTP error sending message: {str(e)}")
+                        # Create a slash command interaction
+                        command = await app_commands.CommandTree(self.bot).get_command("remove-money")
+                        if command:
+                            self.logger.info(f"Found remove-money command: {command}")
+
+                            # Create the interaction
+                            interaction = discord.Interaction(
+                                data={
+                                    "application_id": target_bot.id,
+                                    "type": 2,  # APPLICATION_COMMAND
+                                    "data": {
+                                        "name": "remove-money",
+                                        "options": [
+                                            {"name": "user", "value": target.id if isinstance(target, discord.Member) else target},
+                                            {"name": "amount", "value": int(amount)}
+                                        ]
+                                    }
+                                },
+                                state=channel._state
+                            )
+
+                            # Execute the command
+                            await command.callback(interaction)
+                            self.logger.info("Successfully executed remove-money command")
+                            return True
+                        else:
+                            self.logger.error("Could not find remove-money command in target bot's command tree")
+                            return False
+
+                    except Exception as e:
+                        self.logger.error(f"Error executing slash command: {str(e)}")
                         return False
 
                 except KeyError as e:

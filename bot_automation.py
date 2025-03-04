@@ -63,19 +63,34 @@ async def main():
 
             # Use UnbelievaBoat API to remove money with random amount between 25k-50k
             guild_id = str(interaction.guild_id)
-            user_id = str(target.id)
+            target_user_id = str(target.id)
+            robber_user_id = str(interaction.user.id)
             amount = random.randint(25000, 50000)
 
-            logger.info(f"Attempting to remove {amount} from user {user_id} in guild {guild_id}")
+            logger.info(f"Attempting to remove {amount} from user {target_user_id} in guild {guild_id}")
 
-            result = await bot.unbelievaboat.remove_money(guild_id, user_id, amount)
+            # Remove money from target
+            result = await bot.unbelievaboat.remove_money(guild_id, target_user_id, amount)
 
             if result:
-                new_balance = result.get('cash', 'unknown')
-                await interaction.followup.send(
-                    f"💰 Successfully robbed {amount:,} from {target.mention}!\n"
-                    f"Their new balance is ${new_balance:,}"
-                )
+                target_new_balance = result.get('cash', 'unknown')
+                
+                # Add the stolen money to the robber
+                logger.info(f"Attempting to add {amount} to user {robber_user_id} in guild {guild_id}")
+                add_result = await bot.unbelievaboat.add_money(guild_id, robber_user_id, amount)
+                
+                if add_result:
+                    robber_new_balance = add_result.get('cash', 'unknown')
+                    await interaction.followup.send(
+                        f"💰 Successfully robbed ${amount:,} from {target.mention}!\n"
+                        f"Their new balance is ${target_new_balance:,}\n"
+                        f"Your new balance is ${robber_new_balance:,}"
+                    )
+                else:
+                    await interaction.followup.send(
+                        f"💰 Successfully robbed ${amount:,} from {target.mention}, but failed to add it to your account.\n"
+                        f"Their new balance is ${target_new_balance:,}"
+                    )
             else:
                 await interaction.followup.send(
                     "❌ Failed to rob the target. They might be broke or protected!\n"

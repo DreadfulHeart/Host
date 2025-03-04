@@ -2,6 +2,8 @@ import logging
 import asyncio
 import random
 from datetime import datetime
+import discord
+from discord import app_commands
 
 def setup_logging():
     """Setup logging configuration"""
@@ -21,39 +23,53 @@ class CommandExecutor:
         self.logger = logging.getLogger('BotAutomation.CommandExecutor')
 
     async def execute_slash_command(self, channel, command, options=None, delay=None):
-        """Execute a slash command and wait for response"""
+        """Execute a command by sending it as a message to the channel"""
         if delay is None:
             delay = float(self.bot.config['DEFAULT_DELAY'])
 
         try:
-            # Log command execution
-            self.logger.info(f"Executing command: {command} with options: {options}")
+            self.logger.info(f"Starting command execution in channel: {channel.name} ({channel.id})")
 
-            # Format the command exactly as needed for the target bot
             if command == "remove-money":
-                # Special formatting for remove-money command without using target: prefix
-                cmd = f"!remove-money {options['target']} {options['amount']}"
+                try:
+                    # Ensure target is properly formatted as a mention
+                    target = options['target']
+                    if isinstance(target, discord.Member):
+                        target = target.mention
+                        self.logger.info(f"Formatted mention for target: {target}")
+
+                    # Format command as a regular message, exactly like a user would type
+                    cmd = f"!remove-money {target} {options['amount']}"
+
+                    # Detailed logging
+                    self.logger.info(f"Preparing to send command: {cmd}")
+                    self.logger.info(f"Channel permissions: {channel.permissions_for(channel.guild.me)}")
+
+                    # Wait for the specified delay
+                    await asyncio.sleep(delay)
+
+                    # Send as a regular message
+                    try:
+                        message = await channel.send(content=cmd)
+                        self.logger.info(f"Successfully sent message with ID: {message.id}")
+                        self.logger.info(f"Message content sent: {message.content}")
+                        return True
+                    except discord.Forbidden as e:
+                        self.logger.error(f"Permission error sending message: {str(e)}")
+                        return False
+                    except discord.HTTPException as e:
+                        self.logger.error(f"HTTP error sending message: {str(e)}")
+                        return False
+
+                except KeyError as e:
+                    self.logger.error(f"Missing required option: {str(e)}")
+                    return False
+                except Exception as e:
+                    self.logger.error(f"Unexpected error in remove-money command: {str(e)}")
+                    return False
             else:
-                # Standard slash command formatting
-                cmd = f"!" + command # Changed prefix to ! for Unbelievaboat
-                if options:
-                    option_parts = []
-                    for k, v in options.items():
-                        option_parts.append(f"{k}:{v}")
-                    cmd += " " + " ".join(option_parts)
-
-            # Add detailed debug logging for the final command
-            self.logger.info(f"Sending formatted command to channel: {cmd}")
-
-            # Send the command
-            await channel.send(cmd)
-
-            # Wait for the specified delay
-            await asyncio.sleep(delay)
-
-            # Log successful execution
-            self.logger.info(f"Command {command} executed successfully")
-            return True
+                self.logger.error(f"Unknown command: {command}")
+                return False
 
         except Exception as e:
             self.logger.error(f"Failed to execute command {command}: {str(e)}")

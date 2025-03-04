@@ -14,7 +14,8 @@ class AutomationBot(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
         intents.message_content = True
-        intents.members = True  # Enable member intents for member listing
+        intents.members = True
+        intents.guilds = True  # Required for bot interactions
         super().__init__(command_prefix="!", intents=intents)
         self.config = load_config()
         self.command_executor = CommandExecutor(self)
@@ -25,6 +26,11 @@ class AutomationBot(commands.Bot):
 
     async def on_ready(self):
         logger.info(f"Logged in as {self.user}")
+        logger.info("Checking for target bot in guilds...")
+        for guild in self.guilds:
+            target_bot = guild.get_member(int(self.config['TARGET_BOT_ID']))
+            if target_bot:
+                logger.info(f"Found target bot {target_bot.name} in guild {guild.name}")
 
     async def execute_command_sequence(self, channel_id, commands):
         """Execute a sequence of slash commands"""
@@ -62,16 +68,13 @@ async def main():
 
             # If no target specified, randomly select one
             if not target:
-                # Get all members from the server
                 members = interaction.guild.members
-                # Filter out bots and the command user
                 valid_targets = [member for member in members if not member.bot and member != interaction.user]
 
                 if not valid_targets:
                     await interaction.response.send_message("❌ No valid targets found!", ephemeral=True)
                     return
 
-                # Randomly select a target
                 target = random.choice(valid_targets)
             elif target == interaction.user:
                 await interaction.response.send_message("❌ You can't rob yourself!", ephemeral=True)
@@ -86,7 +89,9 @@ async def main():
             # Execute the remove-money command
             channel = interaction.channel
 
-            # Format the command as a proper command interaction
+            # Add debug logging
+            logger.info(f"Attempting to execute remove-money command for target: {target.mention}")
+
             success = await bot.command_executor.execute_slash_command(
                 channel,
                 "remove-money",
